@@ -974,7 +974,7 @@ type
     Operator*: Operator
 
   StateReason* = object
-    Code*: int
+    Code*: string
     Message*: string
 
   EnclaveOptions* = object
