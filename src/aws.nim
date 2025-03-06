@@ -76,10 +76,16 @@ macro constructAWS*(name: untyped, command: typed, subcommand: typed, output: ty
   for (paramNode, paramNodeKind) in paramNodes:
     let formattedName = newStrLitNode(camelToKebab(paramNode.strVal))
     
+    # TODO: here
     if paramNodeKind.kind == nnkBracketExpr and paramNodeKind[0].kind == nnkIdent and paramNodeKind[0].strVal == "seq":
       prcBody.add quote do:
         if `paramNode`.isSome:
           `params`.add(`formattedName` & "=" & multipleOptionValues(`paramNode`.get) & " ")
+    elif paramNodeKind.kind == nnkIdent and paramNodeKind.strVal == "string":
+      prcBody.add quote do:
+        if `paramNode`.isSome:
+          let escapedString = `paramNode`.get.replace("\"", "\\\"")
+          `params`.add(`formattedName` & "=" & "\"" & escapedString & "\" ")
     else:
       prcBody.add quote do:
         if `paramNode`.isSome:
