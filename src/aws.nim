@@ -4,9 +4,10 @@ import jsony_plus
 
 import pkg/colors
 
-import aws/types
 import aws/str
 
+import aws/types
+export types
 import aws/utils
 export utils
 
