@@ -13,12 +13,24 @@ export utils
 
 
 type UnhandledAWSException* = object of Exception
+type AWSException* = object of Exception
 
 proc aws*[T](command: string, subcommand: string, globalOptions: GlobalOptions = GlobalOptions(), parameters: string = ""): T =
   let options = $globalOptions
   
   var cmd = "aws " & options & " " & command & " " & subcommand & " " & parameters
-  let output = execProcess(cmd.strip())
+  let output = execProcess(cmd.strip()).strip()
+
+  if output.startsWith("An error occurred ("):
+    let errorKind = output.split("(")[1].split(")")[0]
+    var subMessage = ""
+    if output.contains(": "):
+      subMessage = output.split(": ")[1]
+    
+    if subMessage != "":
+      raise newException(AWSException, ("[" & errorKind & "] ").red.italic & subMessage.red)
+    else:
+      raise newException(AWSException, output.red)
 
   try:
     result = parse[T](output)
@@ -84,7 +96,7 @@ macro constructAWS*(name: untyped, command: typed, subcommand: typed, output: ty
     elif paramNodeKind.kind == nnkIdent and paramNodeKind.strVal == "string":
       prcBody.add quote do:
         if `paramNode`.isSome:
-          let escapedString = `paramNode`.get.replace("\"", "\\\"")
+          let escapedString = `paramNode`.get.replace("\n", "\\n")
           `params`.add(`formattedName` & "=" & "\"" & escapedString & "\" ")
     else:
       prcBody.add quote do:
