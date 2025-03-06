@@ -15,6 +15,8 @@ echo runInstances(
     disableApiStop = true,
     userData = "..."
 )
+
+echo getInstanceID() # get current instanceId
 ```
 
 #### TODO
