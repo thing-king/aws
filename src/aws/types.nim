@@ -973,6 +973,10 @@ type
     InterfaceType*: string
     Operator*: Operator
 
+  State* = object
+    Code*: int
+    Name*: string
+
   StateReason* = object
     Code*: string
     Message*: string
@@ -1025,7 +1029,7 @@ type
     Operator*: Operator
     InstanceId*: string
     ImageId*: string
-    State*: StateReason
+    State*: State
     PrivateDnsName*: string
     PublicDnsName*: string
     StateTransitionReason*: string
@@ -1076,10 +1080,6 @@ allowSerialization BlockDeviceMappings
 
 # ec2/terminate-instances
 type
-  State* = object
-    Code*: int
-    Name*: string
-
   TerminatingInstance* = object
     InstanceId*: string
     CurrentState*: State
