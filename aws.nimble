@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.7"
+version       = "0.1.10"
 author        = "savannt"
 description   = "Rudimentary `aws-cli` wrapper"
 license       = "MIT"

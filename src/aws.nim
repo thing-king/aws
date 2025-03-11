@@ -2,6 +2,8 @@ import macros
 import strutils, os, osproc, options
 import jsony_plus
 
+import base64
+
 import pkg/colors
 
 import aws/str
@@ -93,11 +95,11 @@ macro constructAWS*(name: untyped, command: typed, subcommand: typed, output: ty
       prcBody.add quote do:
         if `paramNode`.isSome:
           `params`.add(`formattedName` & "=" & multipleOptionValues(`paramNode`.get) & " ")
-    elif paramNodeKind.kind == nnkIdent and paramNodeKind.strVal == "string":
+    elif formattedName.strVal == "--user-data" and paramNodeKind.kind == nnkIdent and paramNodeKind.strVal == "string":
       prcBody.add quote do:
         if `paramNode`.isSome:
-          let escapedString = `paramNode`.get.replace("\n", "\\n")
-          `params`.add(`formattedName` & "=" & "\"" & escapedString & "\" ")
+          let escapedString = base64.encode(`paramNode`.get)
+          `params`.add(`formattedName` & "=" & escapedString & " ")
     else:
       prcBody.add quote do:
         if `paramNode`.isSome:
@@ -195,4 +197,4 @@ proc getInstanceID*(): string =
   let output = execProcess("TOKEN=$(curl -s -X PUT \"http://169.254.169.254/latest/api/token\" -H \"X-aws-ec2-metadata-token-ttl-seconds: 21600\") && curl -s -H \"X-aws-ec2-metadata-token: $TOKEN\" \"http://169.254.169.254/latest/meta-data/instance-id\"")
   if output == "":
     raise newException(UnhandledAWSException, "Could not get instance ID")
-  return output
+  return output.strip().replace("\n", "")
