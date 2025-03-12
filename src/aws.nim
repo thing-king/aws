@@ -198,3 +198,25 @@ proc getInstanceID*(): string =
   if output == "":
     raise newException(UnhandledAWSException, "Could not get instance ID")
   return output.strip().replace("\n", "")
+
+proc setAccessKeyID*(accessKeyID: string, profile: string = "") =
+  var profileFlag = ""
+  if profile != "":
+    profileFlag = " --profile " & profile
+  let output = execProcess("aws configure set aws_access_key_id " & accessKeyID & profileFlag)
+  if output.strip() != "":
+    raise newException(UnhandledAWSException, "Could not set access key ID")
+proc setSecretAccessKey*(secretAccessKey: string, profile: string = "") =
+  var profileFlag = ""
+  if profile != "":
+    profileFlag = " --profile " & profile
+  let output = execProcess("aws configure set aws_secret_access_key " & secretAccessKey & profileFlag)
+  if output.strip() != "":
+    raise newException(UnhandledAWSException, "Could not set secret access key")
+proc setRegion*(region: string, profile: string = "") =
+  var profileFlag = ""
+  if profile != "":
+    profileFlag = " --profile " & profile
+  let output = execProcess("aws configure set region " & region & profileFlag)
+  if output.strip() != "":
+    raise newException(UnhandledAWSException, "Could not set region")
